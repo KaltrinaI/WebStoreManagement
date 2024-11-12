@@ -1,441 +1,491 @@
+  
 
 # WebStoreApp
 
-WebStoreApp is a full-fledged e-commerce platform that allows users to browse products, place orders, and manage their accounts. Admins can manage product details, users, orders, and discounts.
+  
+
+**WebStoreApp** is a full-fledged e-commerce platform that allows users to browse products, place orders, and manage their accounts. Admins can manage product details, users, orders, and discounts.
+
+  
 
 ## Prerequisites
 
+  
+
 Before running the application, ensure you have the following installed:
 
-- **.NET 8 SDK**: [Download from the official .NET website](https://dotnet.microsoft.com/download/dotnet/8.0).
-- **PostgreSQL**: [Download from the official PostgreSQL website](https://www.postgresql.org/download/).
+  
+
+-  **.NET 8 SDK**: [Download from the official .NET website](https://dotnet.microsoft.com/download/dotnet/8.0).
+
+-  **PostgreSQL**: [Download from the official PostgreSQL website](https://www.postgresql.org/download/).
+
+  
 
 ## Getting Started
 
+  
+
 To get started, follow these steps:
+
+  
 
 ### Clone the Repository
 
+  
+
 ```bash
-git clone https://github.com/yourusername/WebStoreApp.git
-cd WebStoreApp
+
+git  clone  https://github.com/yourusername/WebStoreApp.git
+
+cd  WebStoreApp
+
 ```
+
+  
 
 ### Install Dependencies
 
-1. **Backend (API)**:
-   - Navigate to the WebStoreApp directory.
-   - Run the following to install backend dependencies:
-   ```bash
-   dotnet restore
-   ```
+  
 
+1.  **Backend (API)**:
+
+- Navigate to the WebStoreApp directory.
+
+- Run the following to install backend dependencies:
+
+```bash
+
+dotnet restore
+
+```
+
+  
 
 ### Database Setup
 
-1. **Create a Database**: Create a PostgreSQL database named `WebStoreManagement`.
+  
 
-2. **Configure Connection String**: In the `appsettings.json` file, set up the connection string:
+1.  **Create a Database**: Create a PostgreSQL database named `WebStoreManagement`.
 
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Host=localhost;Database=WebStoreManagement;Username=yourusername;Password=yourpassword"
-     }
-   }
-   ```
+2.  **Configure Connection String**: In the `appsettings.json` file, set up the connection string:
+
+  
+
+```json
+
+{
+
+"ConnectionStrings": {
+
+"DefaultConnection": "Host=localhost;Database=WebStoreManagement;Username=yourusername;Password=yourpassword"
+
+}
+
+}
+
+```
+
+  
 
 ### Installing Required Packages
 
+  
+
 Install the necessary NuGet packages:
 
+  
+
 ```bash
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL --version 8.0.10
-dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
-dotnet add package AutoMapper
+
+dotnet  add  package  Npgsql.EntityFrameworkCore.PostgreSQL  --version  8.0.10
+
+dotnet  add  package  Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
+dotnet  add  package  AutoMapper
+
 ```
+
+  
 
 These packages are essential for PostgreSQL integration, identity management, and object mapping.
 
+  
+
 ### Applying Migrations
 
-1. **Add Migrations**:
-   ```bash
-   dotnet ef migrations add InitialCreate
-   ```
+  
 
-2. **Update Database**:
-   ```bash
-   dotnet ef database update
-   ```
+1.  **Add Migrations**:
+
+```bash
+
+dotnet ef migrations add InitialCreate
+
+```
+
+2.  **Update Database**:
+
+```bash
+
+dotnet ef database update
+
+```
+
+  
 
 ### Running the Application
 
-1. **Backend**:
-   - To run the backend API:
-   ```bash
-   dotnet run
-   ```
+  
+
+To run the backend API:
+
+  
+
+```bash
+
+dotnet  run
+
+```
+
+  
+
+---
+
+  
 
 ## Available Endpoints
 
-#AuthController
+  
 
-## POST /api/auth/register
-Registers a new user.
+### AuthController
 
-**Request Body**: 
-- FirstName, LastName, Email, Password, PhoneNumber
+  
 
-## POST /api/auth/login
-Authenticates a user and returns a JWT token.
+-  **POST**  `/api/auth/register` - Registers a new user.
 
-**Request Body**: 
-- Email, Password
+**Request Body**: `FirstName`, `LastName`, `Email`, `Password`, `PhoneNumber`
 
+  
 
-## POST /api/auth/role
-Creates a new role.
+-  **POST**  `/api/auth/login` - Authenticates a user and returns a JWT token.
 
-**Request Body**: 
-- roleName
+**Request Body**: `Email`, `Password`
 
-## POST /api/auth/assign
-Assigns a role to a user.
+  
 
-**Request Body**: 
-- username, roleName
+-  **POST**  `/api/auth/role` - Creates a new role.
 
-#BrandController
+**Request Body**: `roleName`
 
-## GET /api/brand/id/{BrandId}
-Retrieves a brand by ID.
+  
 
-## GET /api/brand/name/{BrandName}
-Retrieves a brand by name.
+-  **POST**  `/api/auth/assign` - Assigns a role to a user.
 
-## GET /api/brand
-Retrieves all brands.
+**Request Body**: `username`, `roleName`
 
-## POST /api/brand
-Adds a new brand.
+  
 
-**Request Body**: 
-- BrandName (string)
+---
 
-## PUT /api/brand/{BrandId}
-Updates an existing brand.
+  
 
-**Request Body**: 
-- BrandName (string)
+### BrandController
 
-## DELETE /api/brand/{BrandId}
-Deletes a brand.
+  
 
-#CategoryController
+-  **GET**  `/api/brand/id/{BrandId}` - Retrieves a brand by ID.
 
-## GET /api/category/id/{CategoryId}
-Retrieves a category by ID.
+-  **GET**  `/api/brand/name/{BrandName}` - Retrieves a brand by name.
 
+-  **GET**  `/api/brand` - Retrieves all brands.
 
-## GET /api/category/name/{CategoryName}
-Retrieves a category by name.
+-  **POST**  `/api/brand` - Adds a new brand.
 
+**Request Body**: `BrandName` (string)
 
-## GET /api/category
-Retrieves all categories.
+-  **PUT**  `/api/brand/{BrandId}` - Updates an existing brand.
 
+**Request Body**: `BrandName` (string)
 
-## POST /api/category
-Adds a new category.
+-  **DELETE**  `/api/brand/{BrandId}` - Deletes a brand.
 
-**Request Body**: 
-- CategoryName (string)
+  
 
+---
 
-## PUT /api/category/{CategoryId}
-Updates an existing category.
+  
 
-**Request Body**: 
-- CategoryName (string)
+### CategoryController
 
-## DELETE /api/category/{CategoryId}
-Deletes a category.
+  
 
-#ColorController
+-  **GET**  `/api/category/id/{CategoryId}` - Retrieves a category by ID.
 
-## GET /api/color/id/{ColorId}
-Retrieves a color by ID.
+-  **GET**  `/api/category/name/{CategoryName}` - Retrieves a category by name.
 
-## GET /api/color/name/{ColorName}
-Retrieves a color by name.
+-  **GET**  `/api/category` - Retrieves all categories.
 
-## GET /api/color
-Retrieves all colors.
+-  **POST**  `/api/category` - Adds a new category.
 
-## POST /api/color
-Adds a new color.
+**Request Body**: `CategoryName` (string)
 
-**Request Body**: 
-- ColorName (string)
+-  **PUT**  `/api/category/{CategoryId}` - Updates an existing category.
 
-## PUT /api/color/{ColorId}
-Updates an existing color.
+**Request Body**: `CategoryName` (string)
 
-**Request Body**: 
-- ColorName (string)
+-  **DELETE**  `/api/category/{CategoryId}` - Deletes a category.
 
-## DELETE /api/color/{ColorId}
-Deletes a color.
+  
 
-#DiscountController
+---
 
-## GET /api/discount/{discountId}
-Retrieves a discount by ID.
+  
 
-## GET /api/discount
-Retrieves all discounts.
+### ColorController
 
-## GET /api/discount/by-name/{name}
-Retrieves discounts by name.
+  
 
-## GET /api/discount/by-date-range
-Retrieves discounts within a date range.
+-  **GET**  `/api/color/id/{ColorId}` - Retrieves a color by ID.
 
-**Query Parameters**:
-- startDate
-- endDate
+-  **GET**  `/api/color/name/{ColorName}` - Retrieves a color by name.
 
-## GET /api/discount/by-starting-date
-Retrieves discounts by starting date.
+-  **GET**  `/api/color` - Retrieves all colors.
 
-**Query Parameter**:
-- startDate
+-  **POST**  `/api/color` - Adds a new color.
 
-## GET /api/discount/by-ending-date
-Retrieves discounts by ending date.
+**Request Body**: `ColorName` (string)
 
-**Query Parameter**:
-- endDate
+-  **PUT**  `/api/color/{ColorId}` - Updates an existing color.
 
-## POST /api/discount
-Adds a new discount.
+**Request Body**: `ColorName` (string)
 
-**Request Body**: 
-- DiscountDTO
+-  **DELETE**  `/api/color/{ColorId}` - Deletes a color.
 
-## PUT /api/discount/{discountId}
-Updates a discount by ID.
+  
 
-**Request Body**: 
-- DiscountDTO
+---
 
-## DELETE /api/discount/{discountId}
-Deletes a discount.
+  
 
-## POST /api/discount/apply-to-product/{productId}/{discountId}
-Applies a discount to a product.
+### DiscountController
 
-## POST /api/discount/apply-to-category/{categoryName}/{discountId}
-Applies a discount to a category.
+  
 
-## POST /api/discount/apply-to-brand/{brandName}/{discountId}
-Applies a discount to a brand.
+-  **GET**  `/api/discount/{discountId}` - Retrieves a discount by ID.
 
-## POST /api/discount/remove-expired
-Removes expired discounts.
+-  **GET**  `/api/discount` - Retrieves all discounts.
 
-#GenderController
+-  **GET**  `/api/discount/by-name/{name}` - Retrieves discounts by name.
 
-## GET /api/gender/id/{GenderId}
-Retrieves a gender by ID.
+-  **GET**  `/api/discount/by-date-range` - Retrieves discounts within a date range.
 
-## GET /api/gender/name/{GenderName}
-Retrieves a gender by name.
+**Query Parameters**: `startDate`, `endDate`
 
-## GET /api/gender
-Retrieves all genders.
+-  **GET**  `/api/discount/by-starting-date` - Retrieves discounts by starting date.
 
-## POST /api/gender
-Adds a new gender.
+**Query Parameter**: `startDate`
 
-**Request Body**:
-- GenderName (string)
+-  **GET**  `/api/discount/by-ending-date` - Retrieves discounts by ending date.
 
-## PUT /api/gender/{GenderId}
-Updates an existing gender.
+**Query Parameter**: `endDate`
 
-**Request Body**:
-- GenderName (string)
+-  **POST**  `/api/discount` - Adds a new discount.
 
-## DELETE /api/gender/{GenderId}
-Deletes a gender.
+**Request Body**: `DiscountDTO`
 
-#OrderController
+-  **PUT**  `/api/discount/{discountId}` - Updates a discount by ID.
 
-## POST /api/order
-Places a new order.
+**Request Body**: `DiscountDTO`
 
-**Request Body**:
-- OrderRequestDTO
+-  **DELETE**  `/api/discount/{discountId}` - Deletes a discount.
 
-## GET /api/order/{orderId}
-Retrieves an order by ID.
+-  **POST**  `/api/discount/apply-to-product/{productId}/{discountId}` - Applies a discount to a product.
 
-## GET /api/order/user/{username}
-Retrieves orders by a user’s username.
+-  **POST**  `/api/discount/apply-to-category/{categoryName}/{discountId}` - Applies a discount to a category.
 
-## GET /api/order
-Retrieves all orders.
+-  **POST**  `/api/discount/apply-to-brand/{brandName}/{discountId}` - Applies a discount to a brand.
 
-## GET /api/order/status/{status}
-Retrieves orders by their status.
+-  **POST**  `/api/discount/remove-expired` - Removes expired discounts.
 
-**Query Parameter**:
-- status (OrderStatus)
+  
 
-## PUT /api/order/{orderId}/status
-Updates the status of an order.
+---
 
-**Request Body**:
-- OrderStatus
+  
 
-## POST /api/order/{orderId}/items
-Adds an item to an existing order.
+### GenderController
 
-**Request Body**:
-- OrderItemDTO
+  
 
-## DELETE /api/order/items/{orderId}/{orderItemId}
-Removes an item from an order.
+-  **GET**  `/api/gender/id/{GenderId}` - Retrieves a gender by ID.
 
-## PUT /api/order/{orderId}/cancel
-Cancels an order.
+-  **GET**  `/api/gender/name/{GenderName}` - Retrieves a gender by name.
 
-#ProductController
+-  **GET**  `/api/gender` - Retrieves all genders.
 
-## POST /api/product
-Adds a new product.
+-  **POST**  `/api/gender` - Adds a new gender.
 
-**Request Body**: 
-- ProductDTO
+**Request Body**: `GenderName` (string)
 
-## GET /api/product/{productId}
-Retrieves a product by ID.
+-  **PUT**  `/api/gender/{GenderId}` - Updates an existing gender.
 
-## GET /api/product
-Retrieves all products.
+**Request Body**: `GenderName` (string)
 
-## GET /api/product/out-of-stock
-Retrieves products that are out of stock.
+-  **DELETE**  `/api/gender/{GenderId}` - Deletes a gender.
 
-## GET /api/product/brand/{brand}
-Retrieves products by brand.
+  
 
-## GET /api/product/category/{category}
-Retrieves products by category.
+---
 
-## GET /api/product/color/{color}
-Retrieves products by color.
+  
 
-## GET /api/product/gender/{gender}
-Retrieves products by gender.
+### OrderController
 
-## GET /api/product/size/{size}
-Retrieves products by size.
+  
 
-## GET /api/product/with-discount
-Retrieves products with discounts.
+-  **POST**  `/api/order` - Places a new order.
 
-## PUT /api/product/{productId}
-Updates an existing product.
+**Request Body**: `OrderRequestDTO`
 
-**Request Body**: 
-- ProductDTO
+-  **GET**  `/api/order/{orderId}` - Retrieves an order by ID.
 
-## DELETE /api/product/{productId}
-Deletes a product.
+-  **GET**  `/api/order/user/{username}` - Retrieves orders by a user’s username.
 
-## GET /api/product/quantity/{productId}
-Retrieves real-time quantity information for a product.
+-  **GET**  `/api/order` - Retrieves all orders.
 
-## GET /api/product/search
-Performs an advanced product search with multiple filters.
+-  **GET**  `/api/order/status/{status}` - Retrieves orders by their status.
 
-**Query Parameters**:
-- category, gender, brand, minPrice, maxPrice, size, color, inStock
+**Query Parameter**: `status` (OrderStatus)
 
-#ReportController
+-  **PUT**  `/api/order/{orderId}/status` - Updates the status of an order.
 
-## GET /api/report
-Retrieves all reports.
+**Request Body**: `OrderStatus`
 
-## GET /api/report/earnings/daily
-Retrieves daily earnings.
+-  **POST**  `/api/order/{orderId}/items` - Adds an item to an existing order.
 
-**Query Parameter**:
-- date (DateTime)
+**Request Body**: `OrderItemDTO`
 
-## GET /api/report/earnings/monthly
-Retrieves monthly earnings.
+-  **DELETE**  `/api/order/items/{orderId}/{orderItemId}` - Removes an item from an order.
 
-**Query Parameters**:
-- month (int), year (int)
+-  **PUT**  `/api/order/{orderId}/cancel` - Cancels an order.
 
-## GET /api/report/earnings/total
-Retrieves total earnings.
+  
 
-#SizeController
+---
 
-## GET /api/size/id/{SizeId}
-Retrieves a size by ID.
+  
 
-## GET /api/size/name/{SizeName}
-Retrieves a size by name.
+### ProductController
 
-## GET /api/size
-Retrieves all sizes.
+  
 
-## POST /api/size
-Adds a new size.
+-  **POST**  `/api/product` - Adds a new product.
 
-**Request Body**:
-- SizeName (string)
+**Request Body**: `ProductDTO`
 
-## PUT /api/size/{SizeId}
-Updates an existing size.
+-  **GET**  `/api/product/{productId}` - Retrieves a product by ID.
 
-**Request Body**:
-- SizeName (string)
+-  **GET**  `/api/product` - Retrieves all products.
 
-## DELETE /api/size/{SizeId}
-Deletes a size.
+-  **GET**  `/api/product/out-of-stock` - Retrieves products that are out of stock.
 
-#UserController
+-  **GET**  `/api/product/brand/{brand}` - Retrieves products by brand.
 
-## GET /api/user/username/{username}
-Retrieves a user by username.
+-  **GET**  `/api/product/category/{category}` - Retrieves products by category.
 
-## GET /api/user/{userId}
-Retrieves a user by user ID.
+-  **GET**  `/api/product/color/{color}` - Retrieves products by color.
 
-## PUT /api/user/{userId}
-Updates an existing user.
+-  **GET**  `/api/product/gender/{gender}` - Retrieves products by gender.
 
-**Request Body**:
-- UserDTO
+-  **GET**  `/api/product/size/{size}` - Retrieves products by size.
 
-## GET /api/user
-Retrieves all users.
+-  **GET**  `/api/product/with-discount` - Retrieves products with discounts.
 
-## POST /api/user/reset-password
-Resets a user's password.
+-  **PUT**  `/api/product/{productId}` - Updates an existing product.
 
-**Request Body**:
-- ResetPasswordDTO
+**Request Body**: `ProductDTO`
 
-## DELETE /api/user/{userId}
-Deletes a user.
+-  **DELETE**  `/api/product/{productId}` - Deletes a product.
 
-## GET /api/user/role/{roleName}
-Retrieves users by their role.
+-  **GET**  `/api/product/quantity/{productId}` - Retrieves real-time quantity information for a product.
+
+-  **GET**  `/api/product/search` - Performs an advanced product search with multiple filters.
+
+**Query Parameters**: `category`, `gender`, `brand`, `minPrice`, `maxPrice`, `size`, `color`, `inStock`
+
+  
+
+---
+
+  
+
+### ReportController
+
+  
+
+-  **GET**  `/api/report` - Retrieves all reports.
+
+-  **GET**  `/api/report/earnings/daily` - Retrieves daily earnings.
+
+**Query Parameter**: `date` (DateTime)
+
+-  **GET**  `/api/report/earnings/monthly` - Retrieves monthly earnings.
+
+**Query Parameters**: `month` (int), `year` (int)
+
+-  **GET**  `/api/report/earnings/total` - Retrieves total earnings.
+
+  
+
+---
+
+  
+
+### SizeController
+
+  
+
+-  **GET**  `/api/size/id/{SizeId}` - Retrieves a size by ID.
+
+-  **GET**  `/api/size/name/{SizeName}` - Retrieves a size by name.
+
+-  **GET**  `/api/size` - Retrieves all sizes.
+
+-  **POST**  `/api/size` - Adds a new size.
+
+**Request Body**: `SizeName` (string)
+
+-  **PUT**  `/api/size/{SizeId}` - Updates an existing size.
+
+**Request Body**: `SizeName` (string)
+
+-  **DELETE**  `/api/size/{SizeId}` - Deletes a size.
+
+  
+
+---
+
+  
+
+### UserController
+
+  
+
+-  **GET**  `/api/user/username/{username}` - Retrieves a user by username.
+
+-  **GET**  `/api/user/{userId}` - Retrieves a user by user ID.
+
+-  **PUT**  `/api/user/{userId}` - Updates an existing user.
+
+**Request Body**: `UserDTO`
+
+-  **GET**  `/api/user` - Retrieves all users.
+
+-  **POST**  `/api/user/reset-password` - Resets a user's password.
+
+**Request Body**: `ResetPasswordDTO`
+
+-  **DELETE**  `/api/user/{userId}` - Deletes a user.
+
+-  **GET**  `/api/user/role/{roleName}` - Retrieves users by their role.
