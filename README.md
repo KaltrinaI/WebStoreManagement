@@ -79,7 +79,7 @@ These packages are essential for PostgreSQL integration, identity management, an
 
 ## Available Endpoints
 
-### AuthController
+#AuthController
 
 ## POST /api/auth/register
 Registers a new user.
@@ -106,7 +106,7 @@ Assigns a role to a user.
 **Request Body**: 
 - username, roleName
 
-### BrandController
+#BrandController
 
 ## GET /api/brand/id/{BrandId}
 Retrieves a brand by ID.
@@ -132,7 +132,7 @@ Updates an existing brand.
 ## DELETE /api/brand/{BrandId}
 Deletes a brand.
 
-### CategoryController
+#CategoryController
 
 ## GET /api/category/id/{CategoryId}
 Retrieves a category by ID.
@@ -162,7 +162,7 @@ Updates an existing category.
 ## DELETE /api/category/{CategoryId}
 Deletes a category.
 
-### ColorController
+#ColorController
 
 ## GET /api/color/id/{ColorId}
 Retrieves a color by ID.
@@ -188,7 +188,7 @@ Updates an existing color.
 ## DELETE /api/color/{ColorId}
 Deletes a color.
 
-### DiscountController
+#DiscountController
 
 ## GET /api/discount/{discountId}
 Retrieves a discount by ID.
@@ -245,7 +245,7 @@ Applies a discount to a brand.
 ## POST /api/discount/remove-expired
 Removes expired discounts.
 
-### GenderController
+#GenderController
 
 ## GET /api/gender/id/{GenderId}
 Retrieves a gender by ID.
@@ -271,7 +271,7 @@ Updates an existing gender.
 ## DELETE /api/gender/{GenderId}
 Deletes a gender.
 
-### OrderController
+#OrderController
 
 ## POST /api/order
 Places a new order.
@@ -312,7 +312,7 @@ Removes an item from an order.
 ## PUT /api/order/{orderId}/cancel
 Cancels an order.
 
-### ProductController
+#ProductController
 
 ## POST /api/product
 Adds a new product.
@@ -365,7 +365,7 @@ Performs an advanced product search with multiple filters.
 **Query Parameters**:
 - category, gender, brand, minPrice, maxPrice, size, color, inStock
 
-### ReportController
+#ReportController
 
 ## GET /api/report
 Retrieves all reports.
@@ -385,7 +385,7 @@ Retrieves monthly earnings.
 ## GET /api/report/earnings/total
 Retrieves total earnings.
 
-### SizeController
+#SizeController
 
 ## GET /api/size/id/{SizeId}
 Retrieves a size by ID.
@@ -411,7 +411,7 @@ Updates an existing size.
 ## DELETE /api/size/{SizeId}
 Deletes a size.
 
-### UserController
+#UserController
 
 ## GET /api/user/username/{username}
 Retrieves a user by username.
