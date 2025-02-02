@@ -1,141 +1,484 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Swashbuckle.AspNetCore.Annotations;
 using WebStoreApp.DTOs;
+using WebStoreApp.Exceptions;
+using WebStoreApp.Services.Helpers;
 using WebStoreApp.Services.Interfaces;
 
 namespace WebStoreApp.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/products")]
+    [ApiVersion("1.0")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly LinkHelper _linkHelper;
 
-        public ProductController(IProductService productService)
+
+        public ProductController(IProductService productService, LinkHelper linkHelper)
         {
             _productService = productService;
+            _linkHelper = linkHelper;
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin,AdvancedUser,SimpleUser")]
+        [SwaggerOperation(Summary = "Adds a new product")]
+        [SwaggerResponse(201, "Product added successfully")]
+        [SwaggerResponse(400, "Invalid input")]
+        [SwaggerResponse(401, "Unauthorized - User is not authenticated")]
+        [SwaggerResponse(403, "Forbidden - User does not have permission")]
         public async Task<ActionResult> AddProduct([FromBody] ProductDTO productDto)
         {
-            await _productService.AddProduct(productDto);
-            return Ok();
+            try
+            {
+                if (!ModelState.IsValid || productDto == null)
+                {
+                    return BadRequest(new { message = "Invalid product data." });
+                }
+
+                await _productService.AddProduct(productDto);
+                return StatusCode(201, new { message = "Product added successfully." });
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred while adding the product.", error = ex.Message });
+            }
         }
+
 
         [HttpGet("{productId}")]
+        [SwaggerOperation(Summary = "Gets a product by ID")]
+        [SwaggerResponse(200, "Success", typeof(ProductDTO))]
+        [SwaggerResponse(404, "Product not found")]
         public async Task<ActionResult<ProductDTO>> GetProductById(int productId)
         {
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
+            try
             {
-                return NotFound("Product not found.");
+                var product = await _productService.GetProductById(productId);
+                if (product == null)
+                {
+                    return NotFound(new { message = "Product not found." });
+                }
+
+                var userRoles = HttpContext.User.FindAll(System.Security.Claims.ClaimTypes.Role)
+                                .Select(role => role.Value)
+                                .ToList();
+
+                product.Links = _linkHelper.GenerateProductLinksForSingleProduct(
+                    HttpContext,
+                    product.Id,
+                    product.CategoryName,
+                    product.BrandName,
+                    product.GenderName,
+                    product.SizeName,
+                    product.ColorName,
+                    userRoles);
+
+                return Ok(product);
             }
-            return Ok(product);
+            catch (ServiceException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred while retrieving the product.", error = ex.Message });
+            }
         }
 
+
         [HttpGet]
+        [SwaggerOperation(Summary = "Retrieves all products")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products found")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetAllProducts()
         {
-            var products = await _productService.GetAllProducts();
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetAllProducts();
+                if (!products.Any())
+                {
+                    return NotFound(new { message = "No products found." });
+                }
+
+                var userRoles = HttpContext.User.FindAll(System.Security.Claims.ClaimTypes.Role)
+                               .Select(role => role.Value)
+                               .ToList();
+
+                foreach (var product in products)
+                {
+                    product.Links = _linkHelper.GenerateProductLinksForAllProducts(
+                        HttpContext,
+                        product.Id,
+                        product.CategoryName,
+                        userRoles
+                    );
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products.", error = ex.Message });
+            }
         }
 
         [HttpGet("out-of-stock")]
+        [SwaggerOperation(Summary = "Retrieves all out-of-stock products")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No out-of-stock products found")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetOutOfStockProducts()
         {
-            var products = await _productService.GetOutOfStockProducts();
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetOutOfStockProducts();
+                if (!products.Any())
+                {
+                    return NotFound(new { message = "No out-of-stock products found." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving out-of-stock products.", error = ex.Message });
+            }
         }
 
         [HttpGet("brand/{brand}")]
+        [SwaggerOperation(Summary = "Retrieves products by brand")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products found for the specified brand")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByBrand(string brand)
         {
-            var products = await _productService.GetProductsByBrand(brand);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsByBrand(brand);
+                if (!products.Any())
+                {
+                    return NotFound(new { message = $"No products found for brand: {brand}." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products by brand.", error = ex.Message });
+            }
         }
 
         [HttpGet("category/{category}")]
+        [SwaggerOperation(Summary = "Retrieves products by category")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products found for the specified category")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategory(string category)
         {
-            var products = await _productService.GetProductsByCategory(category);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsByCategory(category);
+                if (!products.Any())
+                {
+                    return NotFound(new { message = $"No products found for category: {category}." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products by category.", error = ex.Message });
+            }
         }
 
         [HttpGet("color/{color}")]
+        [SwaggerOperation(Summary = "Retrieves products by color")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products found for the specified color")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByColor(string color)
         {
-            var products = await _productService.GetProductsByColor(color);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsByColor(color);
+                if (!products.Any())
+                {
+                    return NotFound(new { message = $"No products found for color: {color}." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products by color.", error = ex.Message });
+            }
         }
 
         [HttpGet("gender/{gender}")]
+        [SwaggerOperation(Summary = "Retrieves products by gender")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products found for the specified gender")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByGender(string gender)
         {
-            var products = await _productService.GetProductsByGender(gender);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsByGender(gender);
+                if (!products.Any())
+                {
+                    return NotFound(new { message = $"No products found for gender: {gender}." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products by gender.", error = ex.Message });
+            }
         }
 
         [HttpGet("size/{size}")]
+        [SwaggerOperation(Summary = "Retrieves products by size")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products found for the specified size")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsBySize(string size)
         {
-            var products = await _productService.GetProductsBySize(size);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsBySize(size);
+                if (!products.Any())
+                {
+                    return NotFound(new { message = $"No products found for size: {size}." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products by size.", error = ex.Message });
+            }
         }
 
         [HttpGet("with-discount")]
+        [SwaggerOperation(Summary = "Retrieves products with discounts")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(404, "No products with discounts found")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsWithDiscount()
         {
-            var products = await _productService.GetProductsWithDiscount();
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsWithDiscount();
+                if (!products.Any())
+                {
+                    return NotFound(new { message = "No products with discounts found." });
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products with discounts.", error = ex.Message });
+            }
         }
+
 
         [HttpPut("{productId}")]
         [Authorize(Roles = "Admin,AdvancedUser,SimpleUser")]
+        [SwaggerOperation(Summary = "Updates an existing product")]
+        [SwaggerResponse(204, "Product updated successfully")]
+        [SwaggerResponse(400, "Invalid input")]
+        [SwaggerResponse(401, "Unauthorized - User is not authenticated")]
+        [SwaggerResponse(403, "Forbidden - User does not have permission")]
+        [SwaggerResponse(404, "Product not found")]
         public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductDTO productDto)
         {
-            await _productService.UpdateProduct(productId, productDto);
-            return NoContent();
+            try
+            {
+                if (!ModelState.IsValid || productDto == null)
+                {
+                    return BadRequest(new { message = "Invalid product data." });
+                }
+
+                var existingProduct = await _productService.GetProductById(productId);
+                if (existingProduct == null)
+                {
+                    return NotFound(new { message = "Product not found." });
+                }
+
+                await _productService.UpdateProduct(productId, productDto);
+                return NoContent();
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred while updating the product.", error = ex.Message });
+            }
         }
+
 
         [HttpDelete("{productId}")]
         [Authorize(Roles = "Admin,AdvancedUser,SimpleUser")]
+        [SwaggerOperation(Summary = "Deletes a product")]
+        [SwaggerResponse(204, "Product deleted successfully")]
+        [SwaggerResponse(401, "Unauthorized - User is not authenticated")]
+        [SwaggerResponse(403, "Forbidden - User does not have permission")]
+        [SwaggerResponse(404, "Product not found")]
         public async Task<IActionResult> DeleteProduct(int productId)
         {
-            await _productService.DeleteProduct(productId);
-            return NoContent();
+            try
+            {
+                var existingProduct = await _productService.GetProductById(productId);
+                if (existingProduct == null)
+                {
+                    return NotFound(new { message = "Product not found." });
+                }
+
+                await _productService.DeleteProduct(productId);
+                return NoContent();
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred while deleting the product.", error = ex.Message });
+            }
         }
+
 
         [HttpGet("quantity/{productId}")]
         [Authorize(Roles = "Admin,AdvancedUser,SimpleUser")]
+        [SwaggerOperation(Summary = "Gets real-time product quantity")]
+        [SwaggerResponse(200, "Success", typeof(ProductQuantityDTO))]
+        [SwaggerResponse(401, "Unauthorized - User is not authenticated")]
+        [SwaggerResponse(403, "Forbidden - User does not have permission")]
+        [SwaggerResponse(404, "Product not found")]
         public async Task<ActionResult<ProductQuantityDTO>> GetRealTimeProductQuantity(int productId)
         {
             try
             {
                 var quantityInfo = await _productService.GetRealTimeProductQuantity(productId);
+                if (quantityInfo == null)
+                {
+                    return NotFound(new { message = "Product not found." });
+                }
                 return Ok(quantityInfo);
             }
-            catch (InvalidOperationException ex)
+            catch (ServiceException ex)
             {
-                return NotFound(new { Error = ex.Message });
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred while retrieving the product quantity.", error = ex.Message });
             }
         }
 
+
         [HttpGet("search")]
+        [SwaggerOperation(Summary = "Searches products based on multiple filters")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(400, "Invalid input parameters")]
+        [SwaggerResponse(404, "No products found matching the criteria")]
+        [SwaggerResponse(500, "Internal server error")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> AdvancedProductSearch(
             [FromQuery] string? category,
             [FromQuery] string? gender,
             [FromQuery] string? brand,
-            [FromQuery] double? minPrice,
-            [FromQuery] double? maxPrice,
             [FromQuery] string? size,
             [FromQuery] string? color,
             [FromQuery] bool? inStock)
         {
-            var products = await _productService.AdvancedProductSearch(category, gender, brand, minPrice, maxPrice, size, color, inStock);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.AdvancedProductSearch(category, gender, brand, size, color, inStock);
+
+                if (!products.Any())
+                {
+                    return NotFound(new { message = "No products found matching the specified criteria." });
+                }
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while searching for products.", error = ex.Message });
+            }
         }
+
+        [HttpGet("price-range")]
+        [SwaggerOperation(Summary = "Finds products within a specified price range")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(400, "Invalid price range")]
+        [SwaggerResponse(404, "No products found within the specified price range")]
+        [SwaggerResponse(500, "Internal server error")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> FindByPriceRange(
+            [FromQuery] double minPrice,
+            [FromQuery] double maxPrice)
+        {
+            try
+            {
+                if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+                {
+                    return BadRequest(new { message = "Invalid price range. Ensure minPrice <= maxPrice and both are non-negative." });
+                }
+
+                var products = await _productService.FindByPriceRange(minPrice, maxPrice);
+
+                if (!products.Any())
+                {
+                    return NotFound(new { message = "No products found within the specified price range." });
+                }
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving products by price range.", error = ex.Message });
+            }
+        }
+
+        [HttpGet("search-solr")]
+        [SwaggerOperation(Summary = "Searches products using Solr")]
+        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
+        [SwaggerResponse(400, "Invalid query parameters")]
+        [SwaggerResponse(500, "Internal server error")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string query)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    return BadRequest(new { message = "Search query cannot be empty." });
+                }
+
+                var products = await _productService.SearchProducts(query);
+
+                if (!products.Any())
+                {
+                    return NotFound(new { message = "No products found matching the search criteria." });
+                }
+
+                return Ok(products);
+            }
+            catch (ServiceException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while searching for products.", error = ex.Message });
+            }
+        }
+
 
     }
 }

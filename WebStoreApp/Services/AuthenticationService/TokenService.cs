@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using WebStoreApp.Models;
 
-namespace PartyUp.Services.AuthenticationService
+namespace WebStoreApp.Services.AuthenticationService
 {
     public class TokenService
     {

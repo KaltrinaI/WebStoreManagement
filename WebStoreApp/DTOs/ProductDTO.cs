@@ -1,9 +1,12 @@
 ﻿
 
+using WebStoreApp.Models;
+
 namespace WebStoreApp.DTOs
 {
     public class ProductDTO
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
@@ -14,5 +17,7 @@ namespace WebStoreApp.DTOs
         public string GenderName { get; set; }
         public string ColorName { get; set; }
         public string SizeName { get; set; }
+        public List<Link> Links { get; set; } = new List<Link>();
+
     }
 }

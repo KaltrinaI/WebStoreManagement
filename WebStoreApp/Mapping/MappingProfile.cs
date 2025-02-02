@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WebStoreApp.DTOs;
+using WebStoreApp.LinkResolvers;
 using WebStoreApp.Models;
 
 namespace WebStoreApp.Mapping

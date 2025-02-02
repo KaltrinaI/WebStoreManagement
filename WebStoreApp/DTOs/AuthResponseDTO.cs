@@ -1,4 +1,4 @@
-﻿namespace PartyUp.DTOs
+﻿namespace WebStoreApp.DTOs
 {
     public class AuthResponseDTO
     { 

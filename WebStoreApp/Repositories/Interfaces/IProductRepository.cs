@@ -13,6 +13,7 @@ namespace WebStoreApp.Repositories.Interfaces
         Task<IEnumerable<Product>> GetProductsByCategory(string Category);
         Task<IEnumerable<Product>> GetProductsByGender(string Gender);
         Task<IEnumerable<Product>> GetProductsBySize(string Size);
+        Task<IEnumerable<Product>> FindByPriceRange(double minPrice, double maxPrice);
         Task AddProduct(Product Product);
         Task UpdateProduct(int ProductId, Product Product);
         Task DeleteProduct(int ProductId);
