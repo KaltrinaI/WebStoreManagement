@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Swashbuckle.AspNetCore.Annotations;
 using WebStoreApp.DTOs;
 using WebStoreApp.Exceptions;
+using WebStoreApp.Models;
 using WebStoreApp.Services.Helpers;
 using WebStoreApp.Services.Interfaces;
 
@@ -289,7 +290,7 @@ namespace WebStoreApp.Controllers
         [HttpPut("{productId}")]
         [Authorize(Roles = "Admin,AdvancedUser,SimpleUser")]
         [SwaggerOperation(Summary = "Updates an existing product")]
-        [SwaggerResponse(204, "Product updated successfully")]
+        [SwaggerResponse(200, "Product updated successfully")]
         [SwaggerResponse(400, "Invalid input")]
         [SwaggerResponse(401, "Unauthorized - User is not authenticated")]
         [SwaggerResponse(403, "Forbidden - User does not have permission")]
@@ -310,7 +311,7 @@ namespace WebStoreApp.Controllers
                 }
 
                 await _productService.UpdateProduct(productId, productDto);
-                return NoContent();
+                return Ok(new { message = $"Product with ID {productId} updated successfully." });
             }
             catch (ServiceException ex)
             {
@@ -395,11 +396,13 @@ namespace WebStoreApp.Controllers
             [FromQuery] string? brand,
             [FromQuery] string? size,
             [FromQuery] string? color,
-            [FromQuery] bool? inStock)
+            [FromQuery] bool? inStock,
+            [FromQuery] double? minPrice,
+            [FromQuery] double? maxPrice)
         {
             try
             {
-                var products = await _productService.AdvancedProductSearch(category, gender, brand, size, color, inStock);
+                var products = await _productService.AdvancedProductSearch(category, gender, brand, size, color, inStock,minPrice,maxPrice);
 
                 if (!products.Any())
                 {

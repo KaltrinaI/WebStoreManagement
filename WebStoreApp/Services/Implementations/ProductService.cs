@@ -167,18 +167,27 @@ namespace WebStoreApp.Services.Implementations
 
 
 
-        public async Task<IEnumerable<ProductDTO>> AdvancedProductSearch(string? category, string? gender, string? brand, string? size, string? color, bool? inStock)
+        public async Task<IEnumerable<ProductDTO>> AdvancedProductSearch(string? category, string? gender, string? brand, string? size, string? color, bool? inStock, double? minPrice, double? maxPrice)
         {
             try
             {
+                if (minPrice != null && maxPrice != null)
+                {
+                    if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+                    {
+                        _logger.LogWarning("Invalid price range: MinPrice = {MinPrice}, MaxPrice = {MaxPrice}", minPrice, maxPrice);
+                        throw new Exception("Invalid price range. Ensure that minPrice <= maxPrice and both are non-negative.");
+                    }
+                }
                 var products = await _repository.GetAllProducts();
-
                 var filteredProducts = products
                     .Where(p => string.IsNullOrEmpty(category) || p.Category.Name.Equals(category, StringComparison.OrdinalIgnoreCase))
                     .Where(p => string.IsNullOrEmpty(gender) || p.Gender.Name.Equals(gender, StringComparison.OrdinalIgnoreCase))
                     .Where(p => string.IsNullOrEmpty(brand) || p.Brand.Name.Equals(brand, StringComparison.OrdinalIgnoreCase))
                     .Where(p => string.IsNullOrEmpty(size) || p.Size.Name.Equals(size, StringComparison.OrdinalIgnoreCase))
                     .Where(p => string.IsNullOrEmpty(color) || p.Color.Name.Equals(color, StringComparison.OrdinalIgnoreCase))
+                    .Where(p => !minPrice.HasValue || p.Price >= minPrice.Value)
+                    .Where(p => !maxPrice.HasValue || p.Price <= maxPrice.Value)
                     .Where(p => !inStock.HasValue || (inStock.Value ? p.Quantity > 0 : p.Quantity <= 0));
 
                 return _mapper.Map<IEnumerable<ProductDTO>>(filteredProducts);

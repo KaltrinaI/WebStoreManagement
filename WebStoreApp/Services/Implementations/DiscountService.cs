@@ -77,7 +77,7 @@ namespace WebStoreApp.Services.Implementations
 
                 foreach (var product in products)
                 {
-                    product.DiscountedPrice = CalculateDiscountedPrice(product.Price, discount.DisountPercentage);
+                    product.DiscountedPrice = CalculateDiscountedPrice(product.Price, discount.DiscountPercentage);
                     product.Discounts.Add(discount);
                     await _productRepository.UpdateProduct(product.Id, product);
                 }
@@ -125,7 +125,7 @@ namespace WebStoreApp.Services.Implementations
 
                 foreach (var product in products)
                 {
-                    product.DiscountedPrice = CalculateDiscountedPrice(product.Price, discount.DisountPercentage);
+                    product.DiscountedPrice = CalculateDiscountedPrice(product.Price, discount.DiscountPercentage);
                     product.Discounts.Add(discount);
                     await _productRepository.UpdateProduct(product.Id, product);
                 }
@@ -165,7 +165,7 @@ namespace WebStoreApp.Services.Implementations
                     throw new ServiceException($"Discount with ID {discountId} not found.");
                 }
 
-                product.DiscountedPrice = CalculateDiscountedPrice(product.Price, discount.DisountPercentage);
+                product.DiscountedPrice = CalculateDiscountedPrice(product.Price, discount.DiscountPercentage);
                 product.Discounts.Add(discount);
 
                 await _productRepository.UpdateProduct(product.Id, product);

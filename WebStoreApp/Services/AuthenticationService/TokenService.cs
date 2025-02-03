@@ -16,7 +16,7 @@ namespace WebStoreApp.Services.AuthenticationService
             _userManager = userManager;
         }
 
-        private const int ExpirationMinutes = 30;
+        private const int ExpirationMinutes = 300;
 
         public async Task<string> CreateToken(User user)
         {
