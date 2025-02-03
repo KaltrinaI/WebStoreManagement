@@ -76,10 +76,11 @@ builder.Services.AddVersionedApiExplorer(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(Program));
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
 // Database Configuration
 builder.Services.AddDbContext<AppDbContext>(
-    options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options => options.UseNpgsql(connectionString));
 
 // Register Repositories
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
