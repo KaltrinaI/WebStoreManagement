@@ -27,7 +27,7 @@ namespace WebStoreApp.Repositories.Implementations
                     Name = Discount.Name,
                     StartDate = Discount.StartDate,
                     EndDate = Discount.EndDate,
-                    DisountPercentage = Discount.DisountPercentage
+                    DiscountPercentage = Discount.DiscountPercentage
                 };
 
                 _context.Discounts.Add(requestBody);
@@ -178,7 +178,7 @@ namespace WebStoreApp.Repositories.Implementations
                 discount.Name = Discount.Name;
                 discount.StartDate = Discount.StartDate;
                 discount.EndDate = Discount.EndDate;
-                discount.DisountPercentage = Discount.DisountPercentage;
+                discount.DiscountPercentage = Discount.DiscountPercentage;
 
                 await _context.SaveChangesAsync();
             }

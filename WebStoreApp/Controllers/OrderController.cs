@@ -207,7 +207,7 @@ namespace WebStoreApp.Controllers
         /// <param name="orderId">The ID of the order.</param>
         /// <param name="status">The new status.</param>
         /// <returns>A success message if updated.</returns>
-        [HttpPut("{orderId}/status")]
+        [HttpPut("{orderId}/status/{status}")]
         [Authorize(Roles = "Admin,AdvancedUser")]
         [SwaggerOperation(Summary = "Updates order status")]
         [SwaggerResponse(204, "Order status updated successfully")]
@@ -216,7 +216,7 @@ namespace WebStoreApp.Controllers
         [SwaggerResponse(403, "Forbidden - User does not have permission")]
         [SwaggerResponse(404, "Order not found")]
         [SwaggerResponse(500, "Internal server error")]
-        public async Task<IActionResult> UpdateOrderStatus([Required] int orderId, [FromBody, Required] OrderStatus status)
+        public async Task<IActionResult> UpdateOrderStatus([Required] int orderId, [Required] OrderStatus status)
         {
             try
             {
