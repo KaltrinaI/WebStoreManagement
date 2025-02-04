@@ -111,8 +111,9 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 
 //Solr Configuration
-builder.Services.AddSolrNet("http://localhost:8983/solr/webstore");
-builder.Services.AddScoped<ISolrService, SolrService>();
+//builder.Services.AddSolrNet<Product>("http://solr:8983/solr/product-core");
+builder.Services.AddSolrNet<Product>("http://localhost:8983/solr/product-core");
+builder.Services.AddScoped<SolrService>();
 
 
 

@@ -55,17 +55,17 @@ namespace WebStoreApp.GraphQL
         {
             var productsTask =  await _productService.GetAllProducts();
             var ordersTask =await  _orderService.GetAllOrders();
-            //var totalEarningsTask =await  _reportService.GetTotalEarnings();
-            //var dailyEarningsTask =await  _reportService.GetDailyEarnings();
-            //var monthlyEarningsTask =await _reportService.GetMonthlyEarnings(DateTime.UtcNow.Month, DateTime.UtcNow.Year);
+            var totalEarningsTask =await  _reportService.GetTotalEarnings();
+            var dailyEarningsTask =await  _reportService.GetDailyEarnings();
+            var monthlyEarningsTask =await _reportService.GetMonthlyEarnings(DateTime.UtcNow.Month, DateTime.UtcNow.Year);
 
 
             return (
                  productsTask,
                  ordersTask,
-                 10,
-                 15,
-                 20
+                 totalEarningsTask,
+                 dailyEarningsTask,
+                 monthlyEarningsTask
             );
         }
     }

@@ -448,40 +448,5 @@ namespace WebStoreApp.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving products by price range.", error = ex.Message });
             }
         }
-
-        [HttpGet("search-solr")]
-        [SwaggerOperation(Summary = "Searches products using Solr")]
-        [SwaggerResponse(200, "Success", typeof(IEnumerable<ProductDTO>))]
-        [SwaggerResponse(400, "Invalid query parameters")]
-        [SwaggerResponse(500, "Internal server error")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string query)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(query))
-                {
-                    return BadRequest(new { message = "Search query cannot be empty." });
-                }
-
-                var products = await _productService.SearchProducts(query);
-
-                if (!products.Any())
-                {
-                    return NotFound(new { message = "No products found matching the search criteria." });
-                }
-
-                return Ok(products);
-            }
-            catch (ServiceException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while searching for products.", error = ex.Message });
-            }
-        }
-
-
     }
 }
