@@ -76,7 +76,16 @@ builder.Services.AddVersionedApiExplorer(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(Program));
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
+var connFile = Environment.GetEnvironmentVariable("CONNECTION_STRING_FILE");
+string connectionString = null;
+if (!string.IsNullOrEmpty(connFile) && File.Exists(connFile))
+{
+    connectionString = File.ReadAllText(connFile).Trim();
+}
+
+
+connectionString ??= Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Database Configuration
 builder.Services.AddDbContext<AppDbContext>(
@@ -188,6 +197,27 @@ builder.Services.AddScoped<ProductLinksResolver>();
 
 var app = builder.Build();
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // This will apply any pending migrations and create the database/tables if they don’t exist.
+    dbContext.Database.Migrate();
+
+    var role = dbContext.Roles.FirstOrDefault(x => x.Name == "user");
+
+    if (role == null)
+    {
+        dbContext.Roles.Add(new IdentityRole()
+        {
+            Name = "user",
+            NormalizedName = "USER",
+        });
+        dbContext.SaveChanges();
+    }
+
+}
+
 
 // Configure Middleware
 if (app.Environment.IsDevelopment())
